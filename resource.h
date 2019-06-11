@@ -1,5 +1,8 @@
 #define IDI_ICON 101
 #define IDC_CURSOR 102
+#define IDM_EXIT 103
+#define IDM_SOUND 104
+#define IDM_SAYSOUND 105
 #define IDW_WAVE_TTI 200
 #define IDW_WAVE_1 201
 #define IDW_WAVE_2 202

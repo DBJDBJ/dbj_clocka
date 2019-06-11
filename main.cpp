@@ -3,11 +3,12 @@
 #include "resource.h"
 #include <windows.h>
 #include<math.h>
+#include<stdio.h>
 #ifdef ALARM_FUNCTIONALITY
 #include<commctrl.h>
-#endif
 #include<sstream>
 #include<fstream>
+#endif
 
 // for the play sound
 #pragma comment(lib,"winmm.lib")
@@ -22,8 +23,6 @@
 #define MINHAND 1
 #define SECHAND 0
 #define p2i (6.2851)
-
-// WOT?! --> using namespace std;
 
 /*  Declare Windows procedure  */
 LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -47,8 +46,10 @@ namespace GLOBAL {
 
 	HINSTANCE hinstance;
 
-	static const int app_width{ 512 };
-	static const int app_height{ 512 };
+	static const int app_width{ 255 };
+	static const int app_height{ 255 };
+
+	static bool play_sound = true;
 } 
 
 #ifdef ALARM_FUNCTIONALITY
@@ -174,6 +175,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
     /* The program return-value is 0 - The value that PostQuitMessage() gave */
     return messages.wParam;
 }
+
 
 void Rotate(int Hand,int Angle)
 {int i;
@@ -320,7 +322,10 @@ void PrintTime(HDC hdc,SYSTEMTIME st)
 }
 #endif
 void VoicePlayBack(SYSTEMTIME st)
-{int i,s;
+{
+	if (!GLOBAL::play_sound) return;
+
+	int i,s;
 //sndPlaySound("SoundFiles//TheTimeIs.wav",SND_SYNC);
 PlaySound(MAKEINTRESOURCE(IDW_WAVE_TTI),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
 
@@ -457,137 +462,6 @@ else if(st.wMinute>19) s=st.wMinute%10;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
 
-LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-static SYSTEMTIME st;
-#ifdef ALARM_FUNCTIONALITY
-static HWND hwndAlarmButton;
-#endif
-HDC hdc;
-static RECT rc;
-HFONT hfont;
-LOGFONT f={0};
-static BOOL BeepFlag;
-std::ifstream fin;
-static BOOL hold;
-static int xDiff,yDiff;
-static POINT pt;
-                
-    switch (message)                  /* handle the messages */
-    {
-        case WM_CREATE:
-#ifdef ALARM_FUNCTIONALITY
-             hwndAlarmButton= CreateWindow (TEXT("button"),"Alarm",WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON,100,205,50,20,hwnd,(HMENU)1,((LPCREATESTRUCT)lParam)->hInstance,NULL);
-#endif
-             GetClientRect(hwnd,&rc);
-             GLOBAL::xCentre=(rc.right-rc.left)/2;
-             GLOBAL::yCentre=(rc.bottom-rc.top)/2;
-             SetTimer(hwnd,1,1000,NULL);
-             BeepFlag=~BeepFlag;
-#ifdef ALARM_FUNCTIONALITY
-			 fin.open("AlarmValue.bin");
-             fin>>AlarmHour;
-             fin>>AlarmMinute;
-             fin.close();
-#endif
-             //SendMessage(hwndCheck,BM_SETCHECK,1,0);
-             //sndPlaySound("SoundFiles//TheClockIsSynchronised.wav",SND_ASYNC);
-             break;
-       case WM_COMMAND:
-             switch(LOWORD(wParam))
-             {case 1:
-             GetClientRect(hwnd,&rc);
-             pt.x=rc.left; pt.y=rc.top;
-             ClientToScreen(hwnd,&pt);
-#ifdef ALARM_FUNCTIONALITY
-             CreateChildAlarm(pt.x-100,pt.y);
-#endif
-             }
-             break;
-       case WM_LBUTTONDBLCLK:
-            VoicePlayBack(st);
-            break;
-        /*case WM_CTLCOLORBTN:
-             //Beep(1000,500);
-             //SelectObject((HDC)wParam,GetStockObject(BLACK_BRUSH));
-             
-             //DeleteObject((HBRUSH)SetClassLong((HWND)lParam,GCL_HBRBACKGROUND,(LONG)GetStockObject(BLACK_BRUSH)));
-             SetBkColor((HDC)wParam,TRANSPARENT);
-             SetTextColor((HDC)wParam,RGB(255,255,255));
-             return (LRESULT)GetStockObject(BLACK_BRUSH+1);
-             break;*/
-        case WM_SIZE:
-             GetClientRect(hwnd,&rc);
-             GLOBAL::xCentre=(rc.right-rc.left)/2;
-             GLOBAL::yCentre=(rc.bottom-rc.top)/2;
-             break;
-       case WM_TIMER:
-             if(BeepFlag)PlaySound(MAKEINTRESOURCE(IDW_WAVE_TICK),GLOBAL::hinstance,SND_RESOURCE|SND_NOSTOP|SND_ASYNC);
-             InvalidateRect(hwnd,NULL,TRUE);
-             break;
-       case WM_CHAR:
-            if(wParam==32 || wParam==13)
-            BeepFlag=~BeepFlag;
-            break;
-        case WM_LBUTTONDOWN:
-    		SetCapture(hwnd);
-			xDiff=LOWORD(lParam);
-			yDiff=HIWORD(lParam);
-			hold=1;
-			break;
-		case WM_LBUTTONUP:
-			hold=0;
-			break;
-		case WM_MOUSEMOVE:
-			pt.x=LOWORD(lParam);
-			pt.y=HIWORD(lParam);
-			ClientToScreen(hwnd,&pt);
-			if(hold)
-			MoveWindow(hwnd,pt.x-xDiff,pt.y-yDiff,250,280,FALSE);
-			ReleaseCapture();
-			break;
-			// draw the cifer blat
-        case WM_PAINT:
-             DefWindowProc (hwnd, message, wParam, lParam);
-             hdc=GetDC(hwnd);
-             GetLocalTime(&st);
-             Rotate(SECHAND,-st.wSecond*6);
-             Rotate(MINHAND,-st.wMinute*6);
-             Rotate(HOURHAND,-(st.wHour*30+(180*st.wMinute)/360));
-             DrawClock(hdc);
-             DrawHands(hdc);
-        strcpy_s(f.lfFaceName, GLOBAL::CIFERBLAT_FONT );
-        f.lfHeight=28;
-        f.lfPitchAndFamily=FIXED_PITCH;
-        hfont=CreateFontIndirect(&f);
-        SetBkMode(hdc,TRANSPARENT);
-        SetTextColor(hdc,RGB(200,100,0));
-        SelectObject(hdc,hfont);
-		// 
-             TextOut(hdc,GLOBAL::xCentre-30,GLOBAL::yCentre+10, GLOBAL::CIFERBLAT_CAPTION, COUNT_OF(GLOBAL::CIFERBLAT_CAPTION) );
-             DeleteObject(hfont);
-#ifdef PRINTED_TIME_FUNCTIONALITY
-             PrintTime(hdc,st);
-#endif
-             ReleaseDC(hwnd,hdc);
-             if(st.wMinute==0 && st.wSecond==0)
-             PlaySound(MAKEINTRESOURCE(IDW_WAVE_PERHOUR),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
-#ifdef ALARM_FUNCTIONALITY
-             if(st.wHour==AlarmHour && st.wMinute==AlarmMinute && st.wSecond==0)
-             PlaySound(MAKEINTRESOURCE(IDW_WAVE_ALARM),GLOBAL::hinstance,SND_RESOURCE|SND_ASYNC);
-#endif
-             break;
-        case WM_DESTROY:
-            KillTimer(hwnd,1);
-            PostQuitMessage (0);       /* send a WM_QUIT to the message queue */
-            break;
-        default:                      /* for messages that we don't deal with */
-            return DefWindowProc (hwnd, message, wParam, lParam);
-    }
-
-    return 0;
-}
-
 #ifdef ALARM_FUNCTIONALITY
 void FillListBox(HWND hwndListBox[])
 {
@@ -656,3 +530,178 @@ std::ofstream f;
         return 0;
 }
 #endif
+
+
+LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	static SYSTEMTIME st;
+#ifdef ALARM_FUNCTIONALITY
+	static HWND hwndAlarmButton;
+#endif
+	HDC hdc;
+	static RECT rc;
+	HFONT hfont;
+	LOGFONT f = { 0 };
+	static BOOL BeepFlag;
+#ifdef ALARM_FUNCTIONALITY
+	std::ifstream fin;
+#endif
+	static BOOL hold;
+	static int xDiff, yDiff;
+	static POINT pt;
+
+	switch (message)                  /* handle the messages */
+	{
+	case WM_CREATE:
+#ifdef ALARM_FUNCTIONALITY
+		hwndAlarmButton = CreateWindow(TEXT("button"), "Alarm", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 100, 205, 50, 20, hwnd, (HMENU)1, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+#endif
+		GetClientRect(hwnd, &rc);
+		GLOBAL::xCentre = (rc.right - rc.left) / 2;
+		GLOBAL::yCentre = (rc.bottom - rc.top) / 2;
+		SetTimer(hwnd, 1, 1000, NULL);
+		BeepFlag = ~BeepFlag;
+#ifdef ALARM_FUNCTIONALITY
+		fin.open("AlarmValue.bin");
+		fin >> AlarmHour;
+		fin >> AlarmMinute;
+		fin.close();
+#endif
+		//SendMessage(hwndCheck,BM_SETCHECK,1,0);
+		//sndPlaySound("SoundFiles//TheClockIsSynchronised.wav",SND_ASYNC);
+		break;
+	case WM_COMMAND:
+	{
+		auto wmId = LOWORD(wParam);
+		auto wmEvent = HIWORD(wParam);
+
+		switch (wmId)
+		{
+		case 1:
+			GetClientRect(hwnd, &rc);
+			pt.x = rc.left; pt.y = rc.top;
+			ClientToScreen(hwnd, &pt);
+#ifdef ALARM_FUNCTIONALITY
+			CreateChildAlarm(pt.x - 100, pt.y);
+#endif
+		case IDM_EXIT:
+			DestroyWindow(hwnd);
+			break;
+		case IDM_SOUND:
+			GLOBAL::play_sound = !GLOBAL::play_sound;
+			break;
+		case IDM_SAYSOUND:
+			VoicePlayBack(st);
+			break;
+		default:
+			/* this should not happen */
+			return DefWindowProc(hwnd, message, wParam, lParam);
+		}
+	}
+	break;
+	case WM_RBUTTONUP:
+	{
+		POINT pt;
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		ClientToScreen(hwnd, &pt);
+
+		HMENU hPopupMenu = CreatePopupMenu();
+		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_EXIT, "Exit");
+		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_SOUND, "Sound On/Off");
+		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_SAYSOUND, "Speak Time");
+		//
+		SetForegroundWindow(hwnd);
+			TrackPopupMenuEx(
+				hPopupMenu,
+				TPM_BOTTOMALIGN | TPM_LEFTALIGN,
+				pt.x ,
+				pt.y ,
+				hwnd,
+				NULL
+			);
+	}
+	break;
+	case WM_LBUTTONDBLCLK:
+		if (GLOBAL::play_sound) {
+			VoicePlayBack(st);
+		}
+		break;
+	case WM_SIZE:
+		GetClientRect(hwnd, &rc);
+		GLOBAL::xCentre = (rc.right - rc.left) / 2;
+		GLOBAL::yCentre = (rc.bottom - rc.top) / 2;
+		break;
+	case WM_TIMER:
+
+		if (GLOBAL::play_sound) {
+			if (BeepFlag)
+				PlaySound(MAKEINTRESOURCE(IDW_WAVE_TICK), GLOBAL::hinstance, SND_RESOURCE | SND_NOSTOP | SND_ASYNC);
+		}
+		InvalidateRect(hwnd, NULL, TRUE);
+		break;
+	case WM_CHAR:
+		if (wParam == 32 || wParam == 13)
+			BeepFlag = ~BeepFlag;
+		break;
+	case WM_LBUTTONDOWN:
+		SetCapture(hwnd);
+		xDiff = LOWORD(lParam);
+		yDiff = HIWORD(lParam);
+		hold = 1;
+		break;
+	case WM_LBUTTONUP:
+		hold = 0;
+		break;
+	case WM_MOUSEMOVE:
+		pt.x = LOWORD(lParam);
+		pt.y = HIWORD(lParam);
+		ClientToScreen(hwnd, &pt);
+		if (hold)
+			MoveWindow(hwnd, pt.x - xDiff, pt.y - yDiff, 250, 280, FALSE);
+		ReleaseCapture();
+		break;
+		// draw the cifer blat
+	case WM_PAINT:
+		DefWindowProc(hwnd, message, wParam, lParam);
+		hdc = GetDC(hwnd);
+		GetLocalTime(&st);
+		Rotate(SECHAND, -st.wSecond * 6);
+		Rotate(MINHAND, -st.wMinute * 6);
+		Rotate(HOURHAND, -(st.wHour * 30 + (180 * st.wMinute) / 360));
+		DrawClock(hdc);
+		DrawHands(hdc);
+		strcpy_s(f.lfFaceName, GLOBAL::CIFERBLAT_FONT);
+		f.lfHeight = 28;
+		f.lfPitchAndFamily = FIXED_PITCH;
+		hfont = CreateFontIndirect(&f);
+		SetBkMode(hdc, TRANSPARENT);
+		SetTextColor(hdc, RGB(200, 100, 0));
+		SelectObject(hdc, hfont);
+		// 
+		TextOut(hdc, GLOBAL::xCentre - 30, GLOBAL::yCentre + 10, GLOBAL::CIFERBLAT_CAPTION, COUNT_OF(GLOBAL::CIFERBLAT_CAPTION));
+		DeleteObject(hfont);
+#ifdef PRINTED_TIME_FUNCTIONALITY
+		PrintTime(hdc, st);
+#endif
+		ReleaseDC(hwnd, hdc);
+
+		if (GLOBAL::play_sound) {
+			if (st.wMinute == 0 && st.wSecond == 0)
+				PlaySound(MAKEINTRESOURCE(IDW_WAVE_PERHOUR), GLOBAL::hinstance, SND_RESOURCE | SND_SYNC);
+		}
+#ifdef ALARM_FUNCTIONALITY
+		if (st.wHour == AlarmHour && st.wMinute == AlarmMinute && st.wSecond == 0)
+			PlaySound(MAKEINTRESOURCE(IDW_WAVE_ALARM), GLOBAL::hinstance, SND_RESOURCE | SND_ASYNC);
+#endif
+		break;
+	case WM_DESTROY:
+		KillTimer(hwnd, 1);
+		PostQuitMessage(0);       /* send a WM_QUIT to the message queue */
+		break;
+	default:                      /* for messages that we don't deal with */
+		return DefWindowProc(hwnd, message, wParam, lParam);
+	}
+
+	return 0;
+}
