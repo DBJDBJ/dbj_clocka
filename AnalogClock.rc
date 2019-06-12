@@ -32,4 +32,4 @@ IDW_WAVE_ALARM WAVE "SoundFiles//AlarmTone.wav"
 IDW_WAVE_TICK WAVE "SoundFiles//Tick.wav"
 IDW_WAVE_PERHOUR WAVE "SoundFiles//PerHour.wav"
 
-13 24 "AnalogClock.exe.manifest"
+/* 13 24 "AnalogClock.exe.manifest" */

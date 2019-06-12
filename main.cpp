@@ -10,12 +10,13 @@
 #include<fstream>
 #endif
 
+#include "dbj_win32.h"
+
 // for the play sound
 #pragma comment(lib,"winmm.lib")
 // #pragma comment(lib,"commctrl.lib")
 
 // Here's a better C version (from Google's Chromium project)
-
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #define CLOCK 3
@@ -32,6 +33,10 @@ namespace GLOBAL {
 	static char FACE_FONT[]{ "Arial" };
 	static char  CIFERBLAT_CAPTION[] = { " " };
 	static char  CIFERBLAT_FONT[]{ "Arial" };
+	static int  CIFERBLAT_FONT_SIZE{ 24 };
+	// numbers color 
+	static COLORREF CIFERBLAT_FONT_COLOR = RGB(255, 255, 255); // white
+
 	static char CAPTION_TEXT[] = { "Analog Clock" };
 
 	/*  Make the class name into a global variable  */
@@ -213,64 +218,77 @@ switch(Hand)
 }
 }
 
+
 void DrawClock(HDC hdc)
-{int i,Radius;
-HBRUSH hBrush;
-HFONT hfont;
-LOGFONT f={0};
-char clk[2 + 1]{0};
-hBrush=CreateSolidBrush(RGB(100,50,255));
-SelectObject(hdc,hBrush);
-SelectObject(hdc,GetStockObject(NULL_PEN));
-   for(i=0;i<60;i++)
+{
+	dbj::brush hBrush{ 10,50,255 };
+	char clk[2 + 1]{0};
+
+	// draw the dots
+	SelectObject(hdc,hBrush);
+		SelectObject(hdc,GetStockObject(NULL_PEN));
+
+		int i, radius_{3};
+	for(i = 0; i < 60; i++)
    {
-    if(i%5==0)Radius=0;
-    else Radius=3;
-    Rotate(CLOCK,i*6);
-    Ellipse(hdc,GLOBAL::ptTempClock[0].x-Radius,GLOBAL::ptTempClock[0].y-Radius,GLOBAL::ptTempClock[0].x+Radius,GLOBAL::ptTempClock[0].y+Radius);
+	   if ((i % 5) == 0) continue;
+	    Rotate(CLOCK,i*6);
+    Ellipse(
+		hdc,
+		GLOBAL::ptTempClock[0].x - radius_,
+		GLOBAL::ptTempClock[0].y - radius_,
+		GLOBAL::ptTempClock[0].x + radius_,
+		GLOBAL::ptTempClock[0].y + radius_
+	);
   }
-  DeleteObject(hBrush);
- strcpy_s(f.lfFaceName, GLOBAL::CIFERBLAT_FONT );
- f.lfHeight=18;
- f.lfPitchAndFamily=FIXED_PITCH;
- hfont=CreateFontIndirect(&f);
- SetTextColor(hdc,RGB(100,50,255));
+
+	// numbers on the clock face
+	dbj::font hfont = dbj::font::from_logfont(GLOBAL::CIFERBLAT_FONT, GLOBAL::CIFERBLAT_FONT_SIZE, FIXED_PITCH);
+ SetTextColor(hdc, GLOBAL::CIFERBLAT_FONT_COLOR);
  SetBkMode(hdc,TRANSPARENT);
  SelectObject(hdc,hfont);
-  Radius=7;
+  radius_ = GLOBAL::CIFERBLAT_FONT_SIZE / 2 ;
   for(i=1;i<13;i++)
-  {Rotate(CLOCK,-i*30);
+  {
+	  Rotate(CLOCK,-i * 30);
   sprintf_s(clk,"%d",i);
-  if(i<10)
-  TextOut(hdc,GLOBAL::ptTempClock[0].x-Radius,GLOBAL::ptTempClock[0].y-Radius,&clk[0],1);
-  else TextOut(hdc,GLOBAL::ptTempClock[0].x-Radius,GLOBAL::ptTempClock[0].y-Radius,&clk[0],2);
+  if( i < 10 )
+	TextOut(hdc, GLOBAL::ptTempClock[0].x- radius_, GLOBAL::ptTempClock[0].y- radius_, &clk[0],1);
+  else 
+	  TextOut(hdc, GLOBAL::ptTempClock[0].x- radius_, GLOBAL::ptTempClock[0].y- radius_, &clk[0],2);
   }
-  DeleteObject(hfont);
 }
 
 void DrawHands(HDC hdc)
-{HBRUSH hBrush;
-HPEN hPen;
-hBrush=CreateSolidBrush(RGB(100,100,100));
-SelectObject(hdc,hBrush);
-SelectObject(hdc,GetStockObject(NULL_PEN));
-Polygon(hdc,GLOBAL::ptTempHour,4);
-DeleteObject(hBrush);
-hBrush=CreateSolidBrush(RGB(150,150,200));
-SelectObject(hdc,hBrush);
-SelectObject(hdc,GetStockObject(NULL_PEN));
-Polygon(hdc, GLOBAL::ptTempMin,4);
-DeleteObject(hBrush);
-hBrush=CreateSolidBrush(RGB(0,0,255));
-SelectObject(hdc,hBrush);
-SelectObject(hdc,GetStockObject(NULL_PEN));
-Ellipse(hdc,GLOBAL::xCentre-5,GLOBAL::yCentre-5,GLOBAL::xCentre+5,GLOBAL::yCentre+5);
-DeleteObject(hBrush);
-hPen=CreatePen(PS_SOLID,2,RGB(0,0,255));
-SelectObject(hdc,hPen);
-MoveToEx(hdc,GLOBAL::xCentre,GLOBAL::yCentre,NULL);
-LineTo(hdc, GLOBAL::ptTempSec[1].x, GLOBAL::ptTempSec[1].y);
-DeleteObject(hPen);
+{
+	dbj::brush	hour_brush(0, 0, 0);
+	dbj::brush	mins_brush(0, 0, 0);
+	dbj::brush	secs_brush(220, 20, 60);
+	dbj::pen	hPen{ PS_SOLID,2,RGB(220,20,60) };
+
+	// HBRUSH hBrush;
+	HPEN hPen;
+	// hBrush=CreateSolidBrush(RGB(100,100,100));
+	SelectObject(hdc, hour_brush);
+	SelectObject(hdc,GetStockObject(NULL_PEN));
+	Polygon(hdc,GLOBAL::ptTempHour,4);
+	// DeleteObject(hBrush);
+	// hBrush=CreateSolidBrush(RGB(150,150,200));
+	SelectObject(hdc, mins_brush);
+	SelectObject(hdc,GetStockObject(NULL_PEN));
+	Polygon(hdc, GLOBAL::ptTempMin,4);
+	// DeleteObject(hBrush);
+	// hBrush=CreateSolidBrush(RGB(0,0,255));
+	SelectObject(hdc, secs_brush);
+	SelectObject(hdc,GetStockObject(NULL_PEN));
+	Ellipse(hdc,GLOBAL::xCentre-5,GLOBAL::yCentre-5,GLOBAL::xCentre+5,GLOBAL::yCentre+5);
+	// DeleObject(hBrush);
+
+	// hPen=CreatePen(PS_SOLID,2,RGB(220,20,60));
+	SelectObject(hdc,hPen);
+	MoveToEx(hdc,GLOBAL::xCentre,GLOBAL::yCentre,NULL);
+	LineTo(hdc, GLOBAL::ptTempSec[1].x, GLOBAL::ptTempSec[1].y);
+	// DeleteObject(hPen);
 }
 
 #ifdef PRINTED_TIME_FUNCTIONALITY

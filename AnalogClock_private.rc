@@ -1,7 +1,0 @@
-/* THIS FILE WILL BE OVERWRITTEN BY DEV-C++ */
-/* DO NOT EDIT! */
-
-#include "AnalogClock.rc"
-
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "AnalogClock.ico"
-
