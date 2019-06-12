@@ -101,14 +101,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnalogClock_private.h" />
+    <ClInclude Include="dbj_win32.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AnalogClock.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="AlarmValue.bin" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

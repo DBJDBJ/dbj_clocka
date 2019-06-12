@@ -14,6 +14,7 @@
 
 // for the play sound
 #pragma comment(lib,"winmm.lib")
+
 // #pragma comment(lib,"commctrl.lib")
 
 // Here's a better C version (from Google's Chromium project)
@@ -37,9 +38,14 @@ namespace GLOBAL {
 	// numbers color 
 	static COLORREF CIFERBLAT_FONT_COLOR = RGB(255, 255, 255); // white
 
+	static COLORREF hour_brush_color = RGB(0, 0, 0);
+	static COLORREF mins_brush_color = RGB(0, 0, 0);
+	static COLORREF secs_brush_color = RGB(220, 20, 60);
+	static COLORREF dots_color = RGB(10, 100, 100);
+
+
 	static char CAPTION_TEXT[] = { "Analog Clock" };
 
-	/*  Make the class name into a global variable  */
 	static const char szClassName[]{ "WindowsApp" };
 	POINT ptHour[4] = { -10,0,0,-60,10,0,0,15 };
 	POINT ptMin[4] = { -10,0,0,-100,10,0,0,15 };
@@ -87,11 +93,7 @@ HWND hwndChild;
 #endif // ALARM_FUNCTIONALITY
 
 
-int WINAPI WinMain(HINSTANCE hThisInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpszArgument,
-	int nFunsterStil)
-
+int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int show_cmd_ )
 {
 #ifdef ALARM_FUNCTIONALITY
 	INITCOMMONCONTROLSEX icc;
@@ -164,7 +166,7 @@ int WINAPI WinMain(HINSTANCE hThisInstance,
            
 
     /* Make the window visible on the screen */
-    ShowWindow (hwnd, nFunsterStil);
+    ShowWindow (hwnd, show_cmd_);
      UpdateWindow(hwnd);
     SetLayeredWindowAttributes(hwnd,RGB(1,1,255),150,1);
     /* Run the message loop. It will run until GetMessage() returns 0 */
@@ -221,7 +223,7 @@ switch(Hand)
 
 void DrawClock(HDC hdc)
 {
-	dbj::brush hBrush{ 10,50,255 };
+	dbj::brush hBrush{ GLOBAL::dots_color };
 	char clk[2 + 1]{0};
 
 	// draw the dots
@@ -261,34 +263,26 @@ void DrawClock(HDC hdc)
 
 void DrawHands(HDC hdc)
 {
-	dbj::brush	hour_brush(0, 0, 0);
-	dbj::brush	mins_brush(0, 0, 0);
-	dbj::brush	secs_brush(220, 20, 60);
-	dbj::pen	hPen{ PS_SOLID,2,RGB(220,20,60) };
+	dbj::brush	hour_brush(GLOBAL::hour_brush_color);
+	dbj::brush	mins_brush(GLOBAL::mins_brush_color);
+	dbj::brush	secs_brush(GLOBAL::secs_brush_color);
+	dbj::pen	hPen{ PS_SOLID,2,GLOBAL::secs_brush_color };
 
-	// HBRUSH hBrush;
-	HPEN hPen;
-	// hBrush=CreateSolidBrush(RGB(100,100,100));
 	SelectObject(hdc, hour_brush);
 	SelectObject(hdc,GetStockObject(NULL_PEN));
 	Polygon(hdc,GLOBAL::ptTempHour,4);
-	// DeleteObject(hBrush);
-	// hBrush=CreateSolidBrush(RGB(150,150,200));
+
 	SelectObject(hdc, mins_brush);
 	SelectObject(hdc,GetStockObject(NULL_PEN));
 	Polygon(hdc, GLOBAL::ptTempMin,4);
-	// DeleteObject(hBrush);
-	// hBrush=CreateSolidBrush(RGB(0,0,255));
+
 	SelectObject(hdc, secs_brush);
 	SelectObject(hdc,GetStockObject(NULL_PEN));
 	Ellipse(hdc,GLOBAL::xCentre-5,GLOBAL::yCentre-5,GLOBAL::xCentre+5,GLOBAL::yCentre+5);
-	// DeleObject(hBrush);
 
-	// hPen=CreatePen(PS_SOLID,2,RGB(220,20,60));
 	SelectObject(hdc,hPen);
 	MoveToEx(hdc,GLOBAL::xCentre,GLOBAL::yCentre,NULL);
 	LineTo(hdc, GLOBAL::ptTempSec[1].x, GLOBAL::ptTempSec[1].y);
-	// DeleteObject(hPen);
 }
 
 #ifdef PRINTED_TIME_FUNCTIONALITY
@@ -558,8 +552,8 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 #endif
 	HDC hdc;
 	static RECT rc;
-	HFONT hfont;
-	LOGFONT f = { 0 };
+	//HFONT hfont;
+	//LOGFONT f = { 0 };
 	static BOOL BeepFlag;
 #ifdef ALARM_FUNCTIONALITY
 	std::ifstream fin;
@@ -638,6 +632,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 				hwnd,
 				NULL
 			);
+		DestroyMenu(hPopupMenu);
 	}
 	break;
 	case WM_LBUTTONDBLCLK:
@@ -689,6 +684,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		Rotate(HOURHAND, -(st.wHour * 30 + (180 * st.wMinute) / 360));
 		DrawClock(hdc);
 		DrawHands(hdc);
+#ifdef CIFERBLAT_TEXT
 		strcpy_s(f.lfFaceName, GLOBAL::CIFERBLAT_FONT);
 		f.lfHeight = 28;
 		f.lfPitchAndFamily = FIXED_PITCH;
@@ -699,6 +695,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		// 
 		TextOut(hdc, GLOBAL::xCentre - 30, GLOBAL::yCentre + 10, GLOBAL::CIFERBLAT_CAPTION, COUNT_OF(GLOBAL::CIFERBLAT_CAPTION));
 		DeleteObject(hfont);
+#endif
 #ifdef PRINTED_TIME_FUNCTIONALITY
 		PrintTime(hdc, st);
 #endif
