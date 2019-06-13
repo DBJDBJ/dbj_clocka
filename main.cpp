@@ -17,6 +17,7 @@
 // #pragma comment(lib,"commctrl.lib")
 
 #include "dbj_win32.h"
+#include "sounds.h"
 
 // Here's a better C version (from Google's Chromium project)
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
@@ -335,62 +336,63 @@ void PrintTime(HDC hdc,SYSTEMTIME st)
              DeleteObject(hfont);
 }
 #endif
+
 void VoicePlayBack(SYSTEMTIME st)
 {
 	if (!GLOBAL::play_sound) return;
 
 	int i,s;
 //sndPlaySound("SoundFiles//TheTimeIs.wav",SND_SYNC);
-PlaySound(MAKEINTRESOURCE(IDW_WAVE_TTI),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+ASSURE_SOUND(sound::WAVE_TTI, GLOBAL::hinstance);
 
      switch(st.wHour)
      {case 0:
      case 12:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_12),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_12, GLOBAL::hinstance ) ;
      break;
      case 1:
      case 13:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_1),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_1, GLOBAL::hinstance) ;
      break;
      case 2:
      case 14:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_2),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_2, GLOBAL::hinstance) ;
      break;
      case 3:
      case 15:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_3),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_3, GLOBAL::hinstance) ;
      break;
      case 4:
      case 16:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_4),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_4, GLOBAL::hinstance) ;
      break;
      case 5:
      case 17:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_5),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_5, GLOBAL::hinstance) ;
      break;
      case 6:
      case 18:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_6),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_6, GLOBAL::hinstance) ;
      break;
      case 7:
      case 19:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_7),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_7, GLOBAL::hinstance) ;
      break;
      case 8:
      case 20:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_8),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_8, GLOBAL::hinstance) ;
      break;
      case 9:
      case 21:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_9),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_9, GLOBAL::hinstance) ;
      break;
      case 10:
      case 22:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_10),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_10, GLOBAL::hinstance) ;
      break;
      case 11:
      case 23:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_11),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_11, GLOBAL::hinstance) ;
      break;
      }
 for(i=0;i<2;i++)
@@ -400,79 +402,79 @@ else if(st.wMinute>19) s=st.wMinute%10;
       switch(s)
      {
      case 1:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_1),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_1, GLOBAL::hinstance) ;
      break;
      case 2:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_2),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_2, GLOBAL::hinstance) ;
      break;
      case 3:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_3),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_3, GLOBAL::hinstance) ;
      break;
      case 4:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_4),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_4, GLOBAL::hinstance) ;
      break;
      case 5:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_5),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_5, GLOBAL::hinstance) ;
      break;
      case 6:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_6),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_6, GLOBAL::hinstance) ;
      break;
      case 7:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_7),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_7, GLOBAL::hinstance) ;
      break;
      case 8:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_8),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_8, GLOBAL::hinstance) ;
      break;
      case 9:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_9),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_9, GLOBAL::hinstance) ;
      break;
      case 10:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_10),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_10, GLOBAL::hinstance) ;
      break;
      case 11:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_11),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_11, GLOBAL::hinstance) ;
      break;
      case 12:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_12),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_12, GLOBAL::hinstance) ;
      break;
      case 13:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_13),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_13, GLOBAL::hinstance) ;
      break;
      case 14:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_14),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_14, GLOBAL::hinstance) ;
      break;
      case 15:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_15),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_15, GLOBAL::hinstance) ;
      break;
      case 16:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_16),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_16, GLOBAL::hinstance) ;
      break;
      case 17:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_17),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_17, GLOBAL::hinstance) ;
      break;
      case 18:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_18),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_18, GLOBAL::hinstance) ;
      break;
      case 19:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_19),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_19, GLOBAL::hinstance) ;
      break;
      case 20:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_20),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_20, GLOBAL::hinstance) ;
      break;
      case 30:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_30),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_30, GLOBAL::hinstance) ;
      break;
      case 40:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_40),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_40, GLOBAL::hinstance) ;
      break;
      case 50:
-     PlaySound(MAKEINTRESOURCE(IDW_WAVE_50),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     ASSURE_SOUND(sound::WAVE_50, GLOBAL::hinstance) ;
      break;
      }
 }
      Sleep(10);
-     if(st.wHour<12)PlaySound(MAKEINTRESOURCE(IDW_WAVE_AM),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
-     else PlaySound(MAKEINTRESOURCE(IDW_WAVE_PM),GLOBAL::hinstance,SND_RESOURCE|SND_SYNC);
+     if(st.wHour<12)ASSURE_SOUND(sound::WAVE_AM, GLOBAL::hinstance) ;
+     else ASSURE_SOUND(sound::WAVE_PM, GLOBAL::hinstance) ;
 }
 /*  This function is called by the Windows function DispatchMessage()  */
 
@@ -713,7 +715,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
 		if (GLOBAL::play_sound) {
 			if (st.wMinute == 0 && st.wSecond == 0)
-				PlaySound(MAKEINTRESOURCE(IDW_WAVE_PERHOUR), GLOBAL::hinstance, SND_RESOURCE | SND_SYNC);
+				ASSURE_SOUND(sound::WAVE_PERHOUR, GLOBAL::hinstance);
 		}
 #ifdef ALARM_FUNCTIONALITY
 		if (st.wHour == AlarmHour && st.wMinute == AlarmMinute && st.wSecond == 0)
