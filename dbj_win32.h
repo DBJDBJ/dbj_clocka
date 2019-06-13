@@ -1,6 +1,10 @@
 #pragma once
 
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <mmsystem.h>
+
+#include <crtdbg.h>
 
 namespace dbj {
 	class brush final {
@@ -25,7 +29,7 @@ namespace dbj {
 		static font from_logfont(
 			char* const font_name,
 			unsigned font_height,
-			unsigned font_pitch_and_familly = FIXED_PITCH
+			unsigned font_pitch_and_familly /* = FIXED_PITCH */
 		) {
 			LOGFONT logfont{};
 			strcpy_s(logfont.lfFaceName, font_name);
@@ -35,7 +39,8 @@ namespace dbj {
 		}
 	};
 
-	class pen final {
+	class pen final 
+	{
 		mutable HPEN pen_{};
 		pen() = delete;
 	public:
@@ -49,5 +54,40 @@ namespace dbj {
 		operator HPEN& () const noexcept { return pen_; }
 	};
 
+	class sound final {
+	public:
+		// system sounds
+		static auto sys_sound( unsigned long snd_alias_id_ ) { 
+			return ::PlaySound( (LPCTSTR)snd_alias_id_, NULL, SND_ALIAS_ID|SND_NODEFAULT );
+		}
 
+		static auto sys_asterisk()		{ return sys_sound(SND_ALIAS_SYSTEMASTERISK);	}
+		static auto sys_question()		{ return sys_sound(SND_ALIAS_SYSTEMQUESTION);	}
+		static auto sys_hand()			{ return sys_sound(SND_ALIAS_SYSTEMHAND);		}
+		static auto sys_exit()			{ return sys_sound(SND_ALIAS_SYSTEMEXIT);		}
+		static auto sys_start()			{ return sys_sound(SND_ALIAS_SYSTEMSTART);		}
+		static auto sys_welcome()		{ return sys_sound(SND_ALIAS_SYSTEMWELCOME);	}
+		static auto sys_exclamation()	{ return sys_sound(SND_ALIAS_SYSTEMEXCLAMATION);}
+		static auto sys_default()		{ return sys_sound(SND_ALIAS_SYSTEMDEFAULT);	}
+	};
+
+#ifdef _DEBUG
+	namespace test {
+		inline auto sound() {
+
+			_ASSERTE(
+				::PlaySound(TEXT("SystemStart"), NULL, SND_ALIAS)
+				);
+
+			_ASSERTE(sound::sys_asterisk());
+			_ASSERTE(sound::sys_exclamation());
+			_ASSERTE(sound::sys_exit());
+			_ASSERTE(sound::sys_hand());
+			_ASSERTE(sound::sys_question());
+			_ASSERTE(sound::sys_start());
+			_ASSERTE(sound::sys_welcome());
+			_ASSERTE(sound::sys_default());
+		}
+	} // test ns
+#endif
 } // dbj

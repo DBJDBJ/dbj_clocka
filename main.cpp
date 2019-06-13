@@ -1,6 +1,7 @@
 // #define _WIN32_IE 0X301
 // #define _WIN32_WINNT 0X0500
 #include "resource.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include<math.h>
 #include<stdio.h>
@@ -10,12 +11,12 @@
 #include<fstream>
 #endif
 
-#include "dbj_win32.h"
-
 // for the play sound
 #pragma comment(lib,"winmm.lib")
 
 // #pragma comment(lib,"commctrl.lib")
+
+#include "dbj_win32.h"
 
 // Here's a better C version (from Google's Chromium project)
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
@@ -38,8 +39,8 @@ namespace GLOBAL {
 	// numbers color 
 	static COLORREF CIFERBLAT_FONT_COLOR = RGB(255, 255, 255); // white
 
-	static COLORREF hour_brush_color = RGB(0, 0, 0);
-	static COLORREF mins_brush_color = RGB(0, 0, 0);
+	static COLORREF hour_brush_color = RGB(220, 220, 220);
+	static COLORREF mins_brush_color = RGB(105, 105, 105);
 	static COLORREF secs_brush_color = RGB(220, 20, 60);
 	static COLORREF dots_color = RGB(10, 100, 100);
 
@@ -60,7 +61,8 @@ namespace GLOBAL {
 	static const int app_width{ 255 };
 	static const int app_height{ 255 };
 
-	static bool play_sound = true;
+	// no tick-tock by default ;)
+	static bool play_sound = false ;
 } 
 
 #ifdef ALARM_FUNCTIONALITY
@@ -605,6 +607,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		case IDM_SAYSOUND:
 			VoicePlayBack(st);
 			break;
+#ifdef _DEBUG
+		case IDM_TESTING:
+			dbj::test::sound();
+			break;
+#endif
 		default:
 			/* this should not happen */
 			return DefWindowProc(hwnd, message, wParam, lParam);
@@ -622,6 +629,9 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_EXIT, "Exit");
 		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_SOUND, "Sound On/Off");
 		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_SAYSOUND, "Speak Time");
+#ifdef _DEBUG
+		InsertMenu(hPopupMenu, 0, MF_BYPOSITION | MF_STRING, IDM_TESTING, "Test");
+#endif
 		//
 		SetForegroundWindow(hwnd);
 			TrackPopupMenuEx(
