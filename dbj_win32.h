@@ -57,36 +57,36 @@ namespace dbj {
 	class sound final {
 	public:
 		// system sounds
-		static auto sys_sound( unsigned long snd_alias_id_ ) { 
-			return ::PlaySound( (LPCTSTR)snd_alias_id_, NULL, SND_ALIAS_ID|SND_NODEFAULT );
+		static auto sys_sound( unsigned long snd_alias_id_ , HINSTANCE hinstance_) {
+			return ::PlaySound( (LPCTSTR)snd_alias_id_, hinstance_, SND_ALIAS_ID|SND_NODEFAULT );
 		}
 
-		static auto sys_asterisk()		{ return sys_sound(SND_ALIAS_SYSTEMASTERISK);	}
-		static auto sys_question()		{ return sys_sound(SND_ALIAS_SYSTEMQUESTION);	}
-		static auto sys_hand()			{ return sys_sound(SND_ALIAS_SYSTEMHAND);		}
-		static auto sys_exit()			{ return sys_sound(SND_ALIAS_SYSTEMEXIT);		}
-		static auto sys_start()			{ return sys_sound(SND_ALIAS_SYSTEMSTART);		}
-		static auto sys_welcome()		{ return sys_sound(SND_ALIAS_SYSTEMWELCOME);	}
-		static auto sys_exclamation()	{ return sys_sound(SND_ALIAS_SYSTEMEXCLAMATION);}
-		static auto sys_default()		{ return sys_sound(SND_ALIAS_SYSTEMDEFAULT);	}
+		static auto sys_asterisk(HINSTANCE hinstance_)		{ return sys_sound(SND_ALIAS_SYSTEMASTERISK, hinstance_ );	}
+		static auto sys_question(HINSTANCE hinstance_)		{ return sys_sound(SND_ALIAS_SYSTEMQUESTION, hinstance_);	}
+		static auto sys_hand(HINSTANCE hinstance_)			{ return sys_sound(SND_ALIAS_SYSTEMHAND, hinstance_);		}
+		static auto sys_exit(HINSTANCE hinstance_)			{ return sys_sound(SND_ALIAS_SYSTEMEXIT, hinstance_);		}
+		static auto sys_start(HINSTANCE hinstance_)			{ return sys_sound(SND_ALIAS_SYSTEMSTART, hinstance_);		}
+		static auto sys_welcome(HINSTANCE hinstance_)		{ return sys_sound(SND_ALIAS_SYSTEMWELCOME, hinstance_);	}
+		static auto sys_exclamation(HINSTANCE hinstance_)	{ return sys_sound(SND_ALIAS_SYSTEMEXCLAMATION, hinstance_);}
+		static auto sys_default(HINSTANCE hinstance_)		{ return sys_sound(SND_ALIAS_SYSTEMDEFAULT, hinstance_);	}
 	};
 
 #ifdef _DEBUG
 	namespace test {
-		inline auto sound() {
+		inline auto sound(HINSTANCE hinstance_) {
 
 			_ASSERTE(
-				::PlaySound(TEXT("SystemStart"), NULL, SND_ALIAS)
+				::PlaySound(TEXT("SystemStart"), hinstance_, SND_ALIAS)
 				);
 
-			_ASSERTE(sound::sys_asterisk());
-			_ASSERTE(sound::sys_exclamation());
-			_ASSERTE(sound::sys_exit());
-			_ASSERTE(sound::sys_hand());
-			_ASSERTE(sound::sys_question());
-			_ASSERTE(sound::sys_start());
-			_ASSERTE(sound::sys_welcome());
-			_ASSERTE(sound::sys_default());
+			_ASSERTE(sound::sys_asterisk(hinstance_));
+			_ASSERTE(sound::sys_exclamation(hinstance_));
+			_ASSERTE(sound::sys_exit(hinstance_));
+			_ASSERTE(sound::sys_hand(hinstance_));
+			_ASSERTE(sound::sys_question(hinstance_));
+			_ASSERTE(sound::sys_start(hinstance_));
+			_ASSERTE(sound::sys_welcome(hinstance_));
+			_ASSERTE(sound::sys_default(hinstance_));
 		}
 	} // test ns
 #endif

@@ -611,7 +611,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 			break;
 #ifdef _DEBUG
 		case IDM_TESTING:
-			dbj::test::sound();
+			dbj::test::sound( GLOBAL::hinstance );
 			break;
 #endif
 		default:
