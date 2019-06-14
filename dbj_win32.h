@@ -3,10 +3,36 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mmsystem.h>
-
 #include <crtdbg.h>
+#include <system_error>
 
-namespace dbj {
+namespace dbj 
+{
+	inline int last_win32_error() noexcept
+	{
+		struct last final
+		{
+			last() noexcept : error_(::GetLastError()) {}
+			~last() { ::SetLastError(0); }
+			int operator() () const noexcept { return error_; }
+		private:
+			mutable int error_{};
+		};
+
+		int last_error_ = (last{})();
+		return last_error_;
+	};
+
+	// return instance of std::system_error
+	// which for MSVC STL delivers win32 last error message
+	// by calling what() on it
+	inline auto system_error_instance()
+		->  std::system_error
+	{
+		using namespace std;
+		return system_error(error_code(last_win32_error(), system_category()));
+	}
+
 	class brush final {
 		mutable HBRUSH brush_{};
 		brush() = delete;
@@ -72,21 +98,34 @@ namespace dbj {
 	};
 
 #ifdef _DEBUG
+
 	namespace test {
+
+		inline auto SHOWERR( bool result_ ) {
+
+			if (result_) return;
+
+			auto syserr = dbj::system_error_instance();
+
+			::OutputDebugStringA("\n" __FILE__ "\nLast WIN32 SystemError message\n");
+			::OutputDebugStringA(syserr.what());
+			::OutputDebugStringA("\n\n");
+		}
+
 		inline auto sound(HINSTANCE hinstance_) {
 
-			_ASSERTE(
-				::PlaySound(TEXT("SystemStart"), hinstance_, SND_ALIAS)
+			SHOWERR(
+				::PlaySound(TEXT("SystemStart"), hinstance_, SND_ALIAS|SND_ASYNC)
 				);
 
-			_ASSERTE(sound::sys_asterisk(hinstance_));
-			_ASSERTE(sound::sys_exclamation(hinstance_));
-			_ASSERTE(sound::sys_exit(hinstance_));
-			_ASSERTE(sound::sys_hand(hinstance_));
-			_ASSERTE(sound::sys_question(hinstance_));
-			_ASSERTE(sound::sys_start(hinstance_));
-			_ASSERTE(sound::sys_welcome(hinstance_));
-			_ASSERTE(sound::sys_default(hinstance_));
+			SHOWERR(sound::sys_asterisk(hinstance_));
+			SHOWERR(sound::sys_exclamation(hinstance_));
+			SHOWERR(sound::sys_exit(hinstance_));
+			SHOWERR(sound::sys_hand(hinstance_));
+			SHOWERR(sound::sys_question(hinstance_));
+			SHOWERR(sound::sys_start(hinstance_));
+			SHOWERR(sound::sys_welcome(hinstance_));
+			SHOWERR(sound::sys_default(hinstance_));
 		}
 	} // test ns
 #endif
