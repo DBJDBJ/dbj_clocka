@@ -5,7 +5,10 @@
 #include <windows.h>
 #endif
 
+#include "../portaudio/include/portaudio.h"
+
 namespace sound {
+
 	// where the sounds should be and how they should be called
 	static const char* WAVE_TTI = "SoundFiles//TheTimeIs.wav";
 	static const char* WAVE_1 = "SoundFiles//1.wav";
@@ -43,3 +46,40 @@ static auto ASSURE_SOUND = [](auto ideal_path, HINSTANCE hinstance_)
 
 	return PlaySound(ideal_path, hinstance_, SND_NODEFAULT | SND_SYNC);
 };
+
+
+struct port_audio final {
+
+	port_audio() {
+		auto err = Pa_Initialize();
+
+		if (err != paNoError) {
+			char buff[1024]{ 0 };
+			sprintf(buff, "PortAudio INIT error: %s\n", Pa_GetErrorText(err));
+			::MessageBoxA(NULL, buff, "ERROR! " __FILE__, MB_ICONERROR);
+			exit(0);
+		}
+
+#ifdef _DEBUG	
+		const PaVersionInfo *  pa_version_info = Pa_GetVersionInfo();
+
+		::OutputDebugStringA("\n\n");
+		::OutputDebugStringA(pa_version_info->versionText);
+		::OutputDebugStringA("\n\n");
+
+#endif
+	}
+	~port_audio() {
+		auto err = Pa_Terminate();
+
+		if (err != paNoError) {
+			char buff[1024]{ 0 };
+			sprintf(buff, "PortAudio TERMINATION error: %s\n", Pa_GetErrorText(err));
+			::MessageBoxA(NULL, buff, "ERROR! " __FILE__, MB_ICONERROR);
+			exit(0);
+		}
+	}
+
+};
+
+static port_audio PA{};
